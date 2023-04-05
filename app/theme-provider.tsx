@@ -6,7 +6,13 @@ import React, { createContext } from 'react'
 
 type SetChats = React.Dispatch<
   React.SetStateAction<
-    { id: number; title: string; isActive: boolean; body: QAPair[] }[]
+    {
+      id: number
+      title: string
+      type: string
+      isActive: boolean
+      body: QAPair[]
+    }[]
   >
 >
 
@@ -17,25 +23,35 @@ interface QAPair {
 }
 
 export const ChatListContext = createContext<{
-  chats: { id: number; title: string; isActive: boolean; body: QAPair[] }[]
+  chats: {
+    id: number
+    title: string
+    type: string
+    isActive: boolean
+    body: QAPair[]
+  }[]
   setChats: SetChats
+  endpoint: string
+  setEndpoint: React.Dispatch<React.SetStateAction<string>>
 }>({
   chats: [
     {
       id: 0,
       title: 'Hello World',
+      type: 'hello',
       isActive: false,
       body: [
         {
           id: 0,
-          question: 'What is your name?',
-          answer: 'My name is Echo.',
+          question: 'This will do a GET request to ChatGpt API',
+          answer: 'Hello! How can I assist you today?',
         },
       ],
     },
     {
       id: 1,
       title: 'Echo',
+      type: 'send',
       isActive: false,
       body: [
         {
@@ -48,6 +64,7 @@ export const ChatListContext = createContext<{
     {
       id: 2,
       title: 'Text Adventure',
+      type: 'bonus/start_adventure',
       isActive: false,
       body: [
         {
@@ -65,6 +82,8 @@ export const ChatListContext = createContext<{
     },
   ],
   setChats: () => {},
+  endpoint: 'send',
+  setEndpoint: () => {},
 })
 
 export function ThemeProvider(
@@ -75,6 +94,7 @@ export function ThemeProvider(
     {
       id: number
       title: string
+      type: string
       isActive: boolean
       body: QAPair[]
     }[]
@@ -82,30 +102,34 @@ export function ThemeProvider(
     {
       id: 0,
       title: 'Hello World',
+      type: 'hello',
       isActive: false,
       body: [
         {
           id: 0,
-          question: 'What is your name?',
-          answer: 'My name is Echo.',
+          question: 'This will do a GET request to ChatGpt API',
+          answer: 'Hello! How can I assist you today?',
         },
       ],
     },
     {
       id: 1,
       title: 'Echo',
+      type: 'send',
       isActive: false,
       body: [
         {
           id: 0,
-          question: 'Where are you from?',
-          answer: 'I am from the internet.',
+          question: 'Tell me a Chuck Norris joke',
+          answer:
+            'Chuck Norris originally appeared in the "Street Fighter II" video game, but was removed by Beta Testers because every button caused him to do a roundhouse kick. When asked about this glitch, Norris replied "That\'s no glitch."',
         },
       ],
     },
     {
       id: 2,
       title: 'Text Adventure',
+      type: 'bonus/start_adventure',
       isActive: false,
       body: [
         {
@@ -122,8 +146,12 @@ export function ThemeProvider(
       ],
     },
   ])
+  const [endpoint, setEndpoint] = React.useState('send')
 
-  const value = React.useMemo(() => ({ chats, setChats }), [chats])
+  const value = React.useMemo(
+    () => ({ chats, setChats, endpoint, setEndpoint }),
+    [chats, endpoint],
+  )
 
   return (
     <ChatListContext.Provider value={value}>

@@ -7,7 +7,7 @@ const Spinner = () => {
       viewBox="0 0 24 24"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="animate-spin text-center mx-auto mt-4"
+      className="animate-spin text-center mx-auto my-7"
       height="1em"
       width="1em"
       xmlns="http://www.w3.org/2000/svg"
