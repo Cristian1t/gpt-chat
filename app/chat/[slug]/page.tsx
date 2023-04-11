@@ -15,13 +15,19 @@ export default function ExistingChat({ params }: { params: { slug: string } }) {
       router.push('/chat')
     }
     if (chat && chat.type === 'hello') {
+      fetch('api/hello')
+        .then((res) => res.json())
+        .then((data) => {
+          console.log('data: ', data)
+        })
+
       console.log('hello')
     }
     if (chat && chat.type === 'send') {
       console.log('send')
     }
-    if (chat && chat.type === 'bonus/start_adventure') {
-      console.log('bonus/start_adventure')
+    if (chat && chat.type === 'adventure') {
+      console.log('adventure')
     }
   }, [chat, router])
 

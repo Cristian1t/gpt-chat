@@ -1,5 +1,5 @@
-import { SearchBar } from '@/components/searchBar';
-import { SideBar } from '@/components/sideBar';
+import { SearchBar } from '@/components/searchBar'
+import { SideBar } from '@/components/sideBar'
 import './globals.css'
 import { ThemeProvider } from './theme-provider'
 
@@ -14,22 +14,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-      <html lang="en" suppressHydrationWarning>
-        <body>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                <div className="overflow-hidden w-full h-full relative">
-                    <div className="flex h-full flex-1 flex-col md:pl-[260px]">
-                        <main
-                            className="relative h-full w-full transition-width flex flex-col overflow-hidden items-stretch flex-1">
-                            {/*<NewChat />*/}
-                            {children}
-                            <SearchBar />
-                        </main>
-                    </div>
-                    <SideBar />
-                </div>
-            </ThemeProvider>
-        </body>
-      </html>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="overflow-hidden w-full h-full relative">
+            <div className="flex h-full flex-1 flex-col md:pl-[260px]">
+              <main className="relative h-full w-full transition-width flex flex-col overflow-hidden items-stretch flex-1">
+                {/*<NewChat />*/}
+                {children}
+                <SearchBar />
+              </main>
+            </div>
+            <SideBar />
+          </div>
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }

@@ -64,7 +64,7 @@ export const ChatListContext = createContext<{
     {
       id: 2,
       title: 'Text Adventure',
-      type: 'bonus/start_adventure',
+      type: 'adventure',
       isActive: false,
       body: [
         {
@@ -129,7 +129,7 @@ export function ThemeProvider(
     {
       id: 2,
       title: 'Text Adventure',
-      type: 'bonus/start_adventure',
+      type: 'adventure',
       isActive: false,
       body: [
         {
