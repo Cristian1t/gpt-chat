@@ -24,18 +24,21 @@ export const SearchBar = () => {
     }
   }
 
-  async function fetchAnswer() {
-    await fetch('https://api.chucknorris.io/jokes/random', {
-      method: 'GET',
+  async function fetchAnswer(bodyIndex?: number) {
+    await fetch('../api/send', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        prompt: text,
+      }),
     })
       .then((res) => res.json())
       .then((data) => {
         const activeChat = localChats.current.find((chat) => chat.isActive)
         if (activeChat) {
-          activeChat.body[0].answer = data.value
+          activeChat.body[bodyIndex ?? 0].answer = data
           setChats(() => [...localChats.current])
         }
       })
@@ -65,16 +68,17 @@ export const SearchBar = () => {
         },
       ]
       setChats(localChats.current)
-      router.push(`/chat/${chats.length}`)
       await fetchAnswer()
+      router.push(`/chat/${chats.length}`)
     } else {
       const activeChat = chats.find((chat) => chat.isActive)
       if (activeChat) {
         activeChat.body.push({
           id: activeChat.body.length,
           question: text,
-          answer: '',
+          answer: 'loading',
         })
+        await fetchAnswer(activeChat.body.length - 1)
         setChats((prev) => [...prev])
       }
     }

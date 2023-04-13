@@ -14,21 +14,6 @@ export default function ExistingChat({ params }: { params: { slug: string } }) {
     if (!chat) {
       router.push('/chat')
     }
-    if (chat && chat.type === 'hello') {
-      fetch('api/hello')
-        .then((res) => res.json())
-        .then((data) => {
-          console.log('data: ', data)
-        })
-
-      console.log('hello')
-    }
-    if (chat && chat.type === 'send') {
-      console.log('send')
-    }
-    if (chat && chat.type === 'adventure') {
-      console.log('adventure')
-    }
   }, [chat, router])
 
   return (

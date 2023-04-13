@@ -1,7 +1,7 @@
 'use client'
 
 import { ChatListContext } from '@/app/theme-provider'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useContext } from 'react'
 
 export const SingleChat = ({
@@ -16,8 +16,80 @@ export const SingleChat = ({
   type: string
 }) => {
   const { chats, setChats } = useContext(ChatListContext)
+  const router = useRouter()
 
   const handleClick = () => {
+    const chat = chats.find((chat: any) => chat.id === id)
+
+    if (chat && chat.type === 'hello' && chat.body[0].answer === 'loading') {
+      fetch('../api/hello')
+        .then((res) => res.json())
+        .then((data) => {
+          chat!.body[0].answer = data
+          console.log(chat!.body[0].answer)
+          setChats([
+            ...chats.map((chat: any) => {
+              if (chat.id === id) {
+                return {
+                  ...chat,
+                  isActive: true,
+                }
+              }
+              return {
+                ...chat,
+                isActive: false,
+              }
+            }),
+          ])
+          //navigate to chat page
+          router.push(`/chat/${id}`)
+          return
+        })
+    }
+
+    if (
+      chat &&
+      chat.type === 'send' &&
+      chat.body[0].answer === 'loading' &&
+      chat.body[0].question === 'Tell me a Chuck Norris joke'
+    ) {
+      fetch('../api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: 'Tell me a Chuck Norris joke',
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          chat.body[0].answer = data
+          setChats([
+            ...chats.map((chat: any) => {
+              if (chat.id === id) {
+                return {
+                  ...chat,
+                  isActive: true,
+                }
+              }
+              return {
+                ...chat,
+                isActive: false,
+              }
+            }),
+          ])
+          //navigate to chat page
+          router.push(`/chat/${id}`)
+          return
+        })
+    }
+
+    if (chat && chat.type === 'adventure') {
+      router.push(`/adventure`)
+      return
+    }
+    console.log(chat?.type)
     setChats(
       chats.map((chat: any) => {
         if (chat.id === id) {
@@ -32,12 +104,13 @@ export const SingleChat = ({
         }
       }),
     )
+    router.push(`/chat/${id}`)
   }
+
   return (
-    <Link
+    <div
       className={`flex py-3 px-3 items-center gap-3 relative rounded-md cursor-pointer break-all pr-14 group animate-flash
          ${!isActive ? 'hover:bg-[#2A2B32]' : 'bg-[#343541]'}`}
-      href={type === 'adventure' ? '/adventure' : `/chat/${id}`}
       onClick={handleClick}
     >
       <svg
@@ -97,6 +170,6 @@ export const SingleChat = ({
           </div>
         </div>
       )}
-    </Link>
+    </div>
   )
 }
