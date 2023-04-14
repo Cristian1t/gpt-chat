@@ -18,71 +18,112 @@ export const SingleChat = ({
   const { chats, setChats } = useContext(ChatListContext)
   const router = useRouter()
 
-  const handleClick = () => {
+  const handleClick = async () => {
     const chat = chats.find((chat: any) => chat.id === id)
 
     if (chat && chat.type === 'hello' && chat.body[0].answer === 'loading') {
-      fetch('../api/hello')
-        .then((res) => res.json())
-        .then((data) => {
-          chat!.body[0].answer = data
-          console.log(chat!.body[0].answer)
-          setChats([
-            ...chats.map((chat: any) => {
-              if (chat.id === id) {
-                return {
-                  ...chat,
-                  isActive: true,
-                }
-              }
+      const response = await fetch('http://localhost:8080/hello', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+        },
+      })
+
+      if (response.body) {
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let done = false
+
+        while (!done) {
+          const { value, done: readerDone } = await reader.read()
+          console.log('value: ', decoder.decode(value))
+          if (value) {
+            chat!.body[0].answer = decoder.decode(value)
+          }
+          done = readerDone
+        }
+
+        setChats([
+          ...chats.map((chat: any) => {
+            if (chat.id === id) {
               return {
                 ...chat,
-                isActive: false,
+                isActive: true,
               }
-            }),
-          ])
-          //navigate to chat page
-          router.push(`/chat/${id}`)
-          return
-        })
+            }
+            return {
+              ...chat,
+              isActive: false,
+            }
+          }),
+        ])
+        //navigate to chat page
+        router.push(`/chat/${id}`)
+        return
+      }
     }
 
     if (
       chat &&
       chat.type === 'send' &&
       chat.body[0].answer === 'loading' &&
-      chat.body[0].question === 'Tell me a Chuck Norris joke'
+      chat.body[0].question === 'Chi vincerà la sfida?'
     ) {
-      fetch('../api/send', {
+      const response = await fetch('http://localhost:8080/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: 'Tell me a Chuck Norris joke',
+          prompt: 'Say the word "Sudoers"',
         }),
       })
-        .then((res) => res.json())
-        .then((data) => {
-          chat.body[0].answer = data
-          setChats([
-            ...chats.map((chat: any) => {
-              if (chat.id === id) {
-                return {
-                  ...chat,
-                  isActive: true,
-                }
+
+      if (response.body) {
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let done = false
+
+        while (!done) {
+          const { value, done: readerDone } = await reader.read()
+          console.log('value: ', decoder.decode(value))
+          try {
+            if (value) {
+              chat!.body[0].answer = JSON.parse(decoder.decode(value)).response
+            }
+          } catch (err) {
+            console.log(err)
+            if (value) {
+              if (chat!.body[0].answer === 'loading') {
+                chat!.body[0].answer = decoder.decode(value)
+              } else {
+                chat!.body[0].answer += decoder.decode(value)
               }
+            }
+          }
+          done = readerDone
+        }
+
+        setChats([
+          ...chats.map((chat: any) => {
+            if (chat.id === id) {
               return {
                 ...chat,
-                isActive: false,
+                isActive: true,
               }
-            }),
-          ])
-          //navigate to chat page
-          router.push(`/chat/${id}`)
-          return
-        })
+            }
+            return {
+              ...chat,
+              isActive: false,
+            }
+          }),
+        ])
+        //navigate to chat page
+        router.push(`/chat/${id}`)
+        console.log('chats: ', chats)
+        return
+      }
     }
 
     if (chat && chat.type === 'adventure') {

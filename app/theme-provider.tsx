@@ -43,7 +43,7 @@ export const ChatListContext = createContext<{
       body: [
         {
           id: 0,
-          question: 'This will do a GET request to ChatGpt API',
+          question: 'Hello chat gpt :)',
           answer: 'loading',
         },
       ],
@@ -66,18 +66,7 @@ export const ChatListContext = createContext<{
       title: 'Text Adventure',
       type: 'adventure',
       isActive: false,
-      body: [
-        {
-          id: 0,
-          question: 'What is your job?',
-          answer: 'loading',
-        },
-        {
-          id: 1,
-          question: 'What is your sdf?',
-          answer: 'loading',
-        },
-      ],
+      body: [],
     },
   ],
   setChats: () => {},
@@ -106,7 +95,7 @@ export function ThemeProvider(
       body: [
         {
           id: 0,
-          question: 'This will do a GET request to ChatGpt API',
+          question: 'Hello chat gpt :)',
           answer: 'loading',
         },
       ],
@@ -119,7 +108,7 @@ export function ThemeProvider(
       body: [
         {
           id: 0,
-          question: 'Tell me a Chuck Norris joke',
+          question: 'Chi vincerà la sfida?',
           answer: 'loading',
         },
       ],
@@ -129,18 +118,7 @@ export function ThemeProvider(
       title: 'Text Adventure',
       type: 'adventure',
       isActive: false,
-      body: [
-        {
-          id: 0,
-          question: 'What is your job?',
-          answer: 'loading',
-        },
-        {
-          id: 1,
-          question: 'What is your sdf?',
-          answer: 'loading',
-        },
-      ],
+      body: [],
     },
   ])
   const [endpoint, setEndpoint] = React.useState('send')

@@ -17,9 +17,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="overflow-hidden w-full h-full relative">
+          <div className="w-full h-full relative">
             <div className="flex h-full flex-1 flex-col md:pl-[260px]">
-              <main className="relative h-full w-full transition-width flex flex-col overflow-hidden items-stretch flex-1">
+              <main className="relative h-full w-full transition-width flex flex-col items-stretch flex-1">
                 {/*<NewChat />*/}
                 {children}
                 <SearchBar />

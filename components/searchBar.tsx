@@ -25,7 +25,66 @@ export const SearchBar = () => {
   }
 
   async function fetchAnswer(bodyIndex?: number) {
-    await fetch('../api/send', {
+    console.log('bodyIndex: ', bodyIndex)
+    if (bodyIndex && pathname.includes('/chat/1')) {
+      console.log('calling 8080')
+      const response = await fetch(`http://localhost:8080/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: text,
+        }),
+      })
+
+      if (response.body) {
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let done = false
+
+        while (!done) {
+          const { value, done: readerDone } = await reader.read()
+          const activeChat = chats.find((chat: any) => chat.isActive)
+          if (value) {
+            try {
+              console.log('activeChat: ', activeChat)
+              if (activeChat) {
+                activeChat.body[bodyIndex ?? 0].answer = JSON.parse(
+                  decoder.decode(value),
+                ).response
+                const newChats = [...localChats.current]
+                console.log('newChats: ', newChats)
+                setChats(() => [...newChats])
+              }
+            } catch (err) {
+              console.log(err)
+              try {
+                if (activeChat) {
+                  if (activeChat.body[bodyIndex ?? 0].answer === 'loading') {
+                    activeChat.body[bodyIndex ?? 0].answer =
+                      decoder.decode(value)
+                  } else {
+                    activeChat.body[bodyIndex ?? 0].answer +=
+                      decoder.decode(value)
+                  }
+                  const newChats = [...localChats.current]
+                  console.log('newChats: ', newChats)
+                  setChats(() => [...newChats])
+                }
+              } catch (err) {
+                console.log(err)
+              }
+            }
+          }
+          done = readerDone
+        }
+      }
+      return
+    }
+
+    // new chat
+    const response = await fetch('../api/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,40 +93,70 @@ export const SearchBar = () => {
         prompt: text,
       }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        const activeChat = localChats.current.find((chat) => chat.isActive)
-        if (activeChat) {
-          activeChat.body[bodyIndex ?? 0].answer = data
-          setChats(() => [...localChats.current])
+
+    if (response.body) {
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let done = false
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read()
+        if (value) {
+          try {
+            const activeChat = chats.find((chat: any) => chat.isActive)
+            console.log('activeChat: ', activeChat)
+            console.log('newChats: ', decoder.decode(value))
+            if (activeChat) {
+              activeChat.body[bodyIndex ?? 0].answer = JSON.parse(
+                decoder.decode(value),
+              ).response
+              const newChats = [...localChats.current]
+              setChats(() => [...newChats])
+            }
+          } catch (err) {
+            console.log(err)
+            try {
+              const activeChat = chats.find((chat: any) => chat.isActive)
+              if (activeChat) {
+                if (activeChat.body[bodyIndex ?? 0].answer === 'loading') {
+                  activeChat.body[bodyIndex ?? 0].answer = decoder.decode(value)
+                } else {
+                  activeChat.body[bodyIndex ?? 0].answer +=
+                    decoder.decode(value)
+                }
+                const newChats = [...localChats.current]
+                setChats(() => [...newChats])
+              }
+            } catch (err) {
+              console.log(err)
+            }
+          }
         }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+        done = readerDone
+      }
+    }
   }
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     if (text === '') return
     if (pathname === '/chat') {
-      localChats.current = [
-        ...chats,
-        {
-          id: localChats.current.length,
-          title: text,
-          type: 'send',
-          isActive: true,
-          body: [
-            {
-              id: 0,
-              question: text,
-              answer: 'loading',
-            },
-          ],
-        },
-      ]
-      setChats(localChats.current)
+      console.log('adding new chat')
+      const newChat = {
+        id: chats.length,
+        type: 'send',
+        title: text,
+        isActive: true,
+        body: [
+          {
+            id: 0,
+            question: text,
+            answer: 'loading',
+          },
+        ],
+      }
+      localChats.current.push(newChat)
+      setChats((prev) => [...prev, newChat])
       await fetchAnswer()
       router.push(`/chat/${chats.length}`)
     } else {
@@ -78,6 +167,7 @@ export const SearchBar = () => {
           question: text,
           answer: 'loading',
         })
+        console.log('this is an existing chat')
         await fetchAnswer(activeChat.body.length - 1)
         setChats((prev) => [...prev])
       }
